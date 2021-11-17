@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackerLibrary
+using TrackerLibrary.Models;
+
+namespace TrackerLibrary.DataAccess
 {
-    public class TextConnection : IDataConnection
+    public class TextConnector : IDataConnection
     {
         // TODO - Wire up the CreatePrize for the text files.
         public PrizeModel CreatePrize(PrizeModel model)
