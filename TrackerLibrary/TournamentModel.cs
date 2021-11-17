@@ -12,6 +12,6 @@ namespace TrackerLibrary
         public decimal EntryFee { get; set; }
         public List<TeamModel> EnteredTeams { get; set; } = new List<TeamModel>();
         public List<PrizeModel> Prizes { get; set; } = new List<PrizeModel>();
-        public List<List<MatchModel>> Rounds { get; set; } = new List<List<MatchModel>>();
+        public List<List<MatchupModel>> Rounds { get; set; } = new List<List<MatchupModel>>();
     }
 }

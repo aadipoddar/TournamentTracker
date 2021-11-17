@@ -94,6 +94,7 @@
             this.prizeAmountValue.Name = "prizeAmountValue";
             this.prizeAmountValue.Size = new System.Drawing.Size(221, 35);
             this.prizeAmountValue.TabIndex = 18;
+            this.prizeAmountValue.Text = "0";
             // 
             // prizeAmountLabel
             // 
@@ -112,6 +113,7 @@
             this.prizePercentageValue.Name = "prizePercentageValue";
             this.prizePercentageValue.Size = new System.Drawing.Size(221, 35);
             this.prizePercentageValue.TabIndex = 20;
+            this.prizePercentageValue.Text = "0";
             // 
             // prizePercentageLabel
             // 
@@ -149,6 +151,7 @@
             this.cretePrizeButton.TabIndex = 26;
             this.cretePrizeButton.Text = "Create Prize";
             this.cretePrizeButton.UseVisualStyleBackColor = true;
+            this.cretePrizeButton.Click += new System.EventHandler(this.cretePrizeButton_Click);
             // 
             // CreatePrizeForm
             // 
