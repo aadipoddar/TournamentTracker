@@ -13,6 +13,33 @@ namespace TrackerLibrary.DataAccess
 {
     public class SqlConnector : IDataConnection
     {
+        private const string db = "Tournaments";
+
+        /// <summary>
+        /// Saves a new Prize to the Databse
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>The prize information , including the unique identifier.</returns>
+        public PrizeModel CreatePrize(PrizeModel model)
+        {
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
+            {
+                var p = new DynamicParameters();
+                p.Add("@PlaceNumber", model.PlaceNumber);
+                p.Add("@PlaceName", model.PlaceName);
+                p.Add("@PrizeAmount", model.PrizeAmount);
+                p.Add("@PrizePercentage", model.PrizePercentage);
+                p.Add("@Id", 0, dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                connection.Execute("dbo.spPrizes_Insert", p, commandType: CommandType.StoredProcedure);
+
+                model.Id = p.Get<int>("@Id");
+
+                return model;
+            }
+        }
+
+
         /// <summary>
         /// Save a new Person to Database
         /// </summary>
@@ -20,7 +47,7 @@ namespace TrackerLibrary.DataAccess
         /// <returns>The person information , including the unique identifier.</returns>
         public PersonModel CreatePerson(PersonModel model)
         {
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString("Tournaments")))
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
             {
                 var p = new DynamicParameters();
                 p.Add("@FirstName", model.FirstName);
@@ -37,28 +64,17 @@ namespace TrackerLibrary.DataAccess
             }
         }
 
-        /// <summary>
-        /// Saves a new Prize to the Databse
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns>The prize information , including the unique identifier.</returns>
-        public PrizeModel CreatePrize(PrizeModel model)
+
+        public List<PersonModel> GetPerson_All()
         {
-            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString("Tournaments")))
+            List<PersonModel> output;
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
             {
-                var p = new DynamicParameters();
-                p.Add("@PlaceNumber", model.PlaceNumber);
-                p.Add("@PlaceName", model.PlaceName);
-                p.Add("@PrizeAmount", model.PrizeAmount);
-                p.Add("@PrizePercentage", model.PrizePercentage);
-                p.Add("@Id", 0, dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-                connection.Execute("dbo.spPrizes_Insert", p, commandType: CommandType.StoredProcedure);
-
-                model.Id = p.Get<int>("@Id");
-
-                return model;
+                output = connection.Query<PersonModel>("dbo.spPeople_GetAll").ToList();
             }
+
+            return output;
         }
     }
 }

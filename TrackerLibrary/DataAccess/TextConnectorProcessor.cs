@@ -76,7 +76,6 @@ namespace TrackerLibrary.DataAccess.TextHelpers
         #endregion
 
 
-
         #region Save the list<string> to the text file
 
         public static void SaveToPrizeFile(this List<PrizeModel> models, string filename)

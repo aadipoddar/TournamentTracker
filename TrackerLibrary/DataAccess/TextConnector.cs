@@ -17,6 +17,29 @@ namespace TrackerLibrary.DataAccess
 
 
 
+        public PrizeModel CreatePrize(PrizeModel model)
+        {
+            List<PrizeModel> prizes = PrizesFile.FullFilePath().LoadFile().ConvertToPrizeModels();
+
+
+            // Find the max ID
+            int currentId = 1;
+
+            if (prizes.Count > 0)
+            {
+                currentId = prizes.OrderByDescending(x => x.Id).First().Id + 1;
+            }
+
+            model.Id = currentId;
+
+            // Add new record with the new ID (max + 1)
+            prizes.Add(model);
+
+            prizes.SaveToPrizeFile(PrizesFile);
+
+            return model;
+        }
+
 
         public PersonModel CreatePerson(PersonModel model)
         {
@@ -41,27 +64,10 @@ namespace TrackerLibrary.DataAccess
         }
 
 
-        public PrizeModel CreatePrize(PrizeModel model)
+
+        public List<PersonModel> GetPerson_All()
         {
-            List<PrizeModel> prizes = PrizesFile.FullFilePath().LoadFile().ConvertToPrizeModels();
-
-
-            // Find the max ID
-            int currentId = 1;
-
-            if (prizes.Count > 0)
-            {
-                currentId = prizes.OrderByDescending(x => x.Id).First().Id + 1;
-            }
-
-            model.Id = currentId;
-
-            // Add new record with the new ID (max + 1)
-            prizes.Add(model);
-
-            prizes.SaveToPrizeFile(PrizesFile);
-
-            return model;
+            return PeopleFile.FullFilePath().LoadFile().ConvertToPersonModels();
         }
     }
 }
