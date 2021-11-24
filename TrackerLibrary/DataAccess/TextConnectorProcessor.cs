@@ -27,8 +27,7 @@ namespace TrackerLibrary.DataAccess.TextHelpers
 
             return File.ReadAllLines(file).ToList();
         }
-        #endregion
-
+        #endregion Load The Text File
 
 
         #region Convert the data to List<>
@@ -73,12 +72,35 @@ namespace TrackerLibrary.DataAccess.TextHelpers
             return output;
         }
 
-        #endregion
+        public static List<TeamModel> ConvertToTeamModels(this List<string> lines, string peopleFileName)
+        {
+            List<TeamModel> output = new List<TeamModel>();
+            List<PersonModel> people = peopleFileName.FullFilePath().LoadFile().ConvertToPersonModels();
+
+            foreach (string line in lines)
+            {
+                string[] cols = line.Split(',');
+
+                TeamModel t = new TeamModel();
+                t.Id = int.Parse(cols[0]);
+                t.TeamName = cols[1];
+
+                string[] personIds = cols[2].Split('|');
+
+                foreach (string id in personIds)
+                {
+                    t.TeamMembers.Add(people.Where(x => x.Id == int.Parse(id)).First());
+                }
+            }
+            return output;
+        }
+
+        #endregion Convert the data to List<>
 
 
         #region Save the list<string> to the text file
 
-        public static void SaveToPrizeFile(this List<PrizeModel> models, string filename)
+        public static void SaveToPrizeFile(this List<PrizeModel> models, string fileName)
         {
             List<string> lines = new List<string>();
 
@@ -87,10 +109,10 @@ namespace TrackerLibrary.DataAccess.TextHelpers
                 lines.Add($"{ p.Id },{ p.PlaceNumber },{ p.PlaceName },{ p.PrizeAmount },{ p.PrizePercentage }");
             }
 
-            File.WriteAllLines(filename.FullFilePath(), lines);
+            File.WriteAllLines(fileName.FullFilePath(), lines);
         }
 
-        public static void SaveToPeopleFile(this List<PersonModel> models, string filename)
+        public static void SaveToPeopleFile(this List<PersonModel> models, string fileName)
         {
             List<string> lines = new List<string>();
 
@@ -99,9 +121,44 @@ namespace TrackerLibrary.DataAccess.TextHelpers
                 lines.Add($"{ p.Id },{ p.FirstName },{ p.LastName },{ p.EmailAddress },{ p.CellphoneNumber }");
             }
 
-            File.WriteAllLines(filename.FullFilePath(), lines);
+            File.WriteAllLines(fileName.FullFilePath(), lines);
         }
 
-        #endregion
+        #region Saving Team Information to File
+
+        public static void SaveToTeamFile(this List<TeamModel> models, string fileName)
+        {
+            List<string> lines = new List<string>();
+
+            foreach (TeamModel t in models)
+            {
+                lines.Add($"{ t.Id },{ t.TeamName },{ ConvertPeopleListToString(t.TeamMembers) }");
+            }
+
+            File.WriteAllLines(fileName.FullFilePath(), lines);
+        }
+
+        private static string ConvertPeopleListToString(List<PersonModel> people)
+        {
+            string output = "";
+
+            if (people.Count == 0)
+            {
+                return "";
+            }
+
+            foreach (PersonModel p in people)
+            {
+                output += $"{ p.Id }|";
+            }
+
+            output = output.Substring(0, output.Length - 1);
+
+            return output;
+        }
+
+        #endregion Saving Team Information to File
+
+        #endregion Save the list<string> to the text file
     }
 }

@@ -64,6 +64,30 @@ namespace TrackerLibrary.DataAccess
             }
         }
 
+        public TeamModel CreateTeam(TeamModel model)
+        {
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
+            {
+                var p = new DynamicParameters();
+                p.Add("@TeamName", model.TeamName);
+                p.Add("@Id", 0, dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                connection.Execute("dbo.spTeams_Insert", p, commandType: CommandType.StoredProcedure);
+
+                model.Id = p.Get<int>("@Id");
+
+                foreach (PersonModel tm in model.TeamMembers)
+                {
+                    p = new DynamicParameters();
+                    p.Add("@TeamId", model.Id);
+                    p.Add("@PersonId", tm.Id);
+
+                    connection.Execute("dbo.spTeamMembers_Insert", p, commandType: CommandType.StoredProcedure);
+                }
+
+                return model;
+            }
+        }
 
         public List<PersonModel> GetPerson_All()
         {
@@ -72,6 +96,26 @@ namespace TrackerLibrary.DataAccess
             using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
             {
                 output = connection.Query<PersonModel>("dbo.spPeople_GetAll").ToList();
+            }
+
+            return output;
+        }
+
+        public List<TeamModel> GetTeam_All()
+        {
+            List<TeamModel> output;
+
+            using (IDbConnection connection = new System.Data.SqlClient.SqlConnection(GlobalConfig.CnnString(db)))
+            {
+                output = connection.Query<TeamModel>("dbo.spTeams_GetAll").ToList();
+
+                foreach (TeamModel team in output)
+                {
+                    var p = new DynamicParameters();
+                    p.Add("@TeamId", team.Id);
+
+                    team.TeamMembers = connection.Query<PersonModel>("spTeamMembers_GetByTeam", p, commandType: CommandType.StoredProcedure).ToList();
+                }
             }
 
             return output;
